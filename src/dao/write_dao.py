@@ -1,5 +1,5 @@
-import config
-from dao import base
+from src import config
+from src.dao import base
 
 
 def save_object(insert_list):
@@ -11,5 +11,3 @@ def save_object(insert_list):
     conn = base.get_connection()
     cursor = conn.cursor()
     cursor.execute(query, insert_list)
-    # , %d, %d, %d, %d, %d, %s, %s, %s, %d, %d, %s, %b, %b, %s, %s
-    # , msize, startdate, enddate, moveindate, number_of_applicants, landlord, housetype, contracttype, latitude, longtitude, imagelink, balcony, elevator, region, district

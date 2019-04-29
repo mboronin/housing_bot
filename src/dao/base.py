@@ -1,5 +1,5 @@
 import pymysql
-import config
+from src import config
 
 conn = None
 

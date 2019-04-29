@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-import config
-from RentalObject import RentalObject
-from dao import write_dao, base
+from src import config
+from src.RentalObject import RentalObject
+from src.dao import base, write_dao
 
 
 def parse_main_page(str):

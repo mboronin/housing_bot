@@ -1,10 +1,8 @@
-import time
 from datetime import datetime
 
-from bs4 import BeautifulSoup
 from future.types.newint import long
 
-import config
+from src import config
 
 
 class RentalObject:
@@ -57,7 +55,7 @@ class RentalObject:
         if longitude is not None:
             self.longitude = float(longitude.replace(",", "."))
         else:
-             self.longitude = None
+            self.longitude = None
         self.imagelink = config.BOSTAD_LINK + result.find("span", "imagePrimaryId hidden").string
         self.balcony = bool(result.find("span", "balcony hidden").string)
         self.elevator = bool(result.find("span", "elevator hidden").string)
