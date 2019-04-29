@@ -51,3 +51,45 @@ class RentalObject:
     def __str__(self):
         attrs = vars(self)
         print(attrs)
+        
+        def get_insert_list(self):
+        data = []
+        for match in self.matches:
+            # Attention to the order. Please check write_dao.py before changing
+            data.append((
+                self.product_id,
+                match,
+                self.category_id,
+                self.brand_id,
+            ))
+        return data
+
+    @staticmethod
+    def from_db(row):
+        return MatchstringProduct(
+            product_id=str(row[0]),
+            product_name=str(row[1]),
+            id_value=str(row[2]),
+            category_id=str(row[3]),
+            brand_id=str(row[4]),
+        )
+
+    def __str__(self):
+        return """
+            product_id      = {product_id}
+            product_name    = {product_name}
+            id_value        = {id_value}
+            category_id     = {category_id}
+            brand_id        = {brand_id}
+            match_text      = {match_text}
+            matches         = {matches}
+        """.format(
+            product_id=self.product_id,
+            product_name=self.product_name,
+            id_value=self.id_value,
+            category_id=self.category_id,
+            brand_id=self.brand_id,
+            match_text=self.match_text,
+            matches=self.matches,
+        )
+
