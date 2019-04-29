@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import config
 from RentalObject import RentalObject
+from dao import write_dao, base
 
 
 def parse_main_page(str):
@@ -34,9 +35,9 @@ def parse_main_page(str):
         rentals = []
         for result in results:
             rental = RentalObject(result)
-            rentals.append(rental)
-            print(rental)
-
+            write_dao.save_object(rental.get_insert_list())
+        base.write_commit()
+        base.close_connection()
         '''
         for span in spans.items():
             print(span)

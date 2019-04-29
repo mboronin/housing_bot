@@ -1,12 +1,15 @@
-import pymysql
+import config
+from dao import base
 
-def save_product_id_match(inset_list):
+
+def save_object(insert_list):
     query = """
         INSERT IGNORE INTO `{database}`.`{table}`
-        (product_id, matchstring, category_id, brand_id)
-        VALUES (%s, %s, %s, %s);
+        (id, link, address, rooms, rent, msize, startdate, enddate, moveindate, number_of_applicants, landlord, housetype, contracttype, latitude, longtitude, imagelink, balcony, elevator, region, district)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
     """.format(database=config.DB_SCHEMA, table=config.DB_TABLE)
-
     conn = base.get_connection()
     cursor = conn.cursor()
-    cursor.executemany(query, inset_list)
+    cursor.execute(query, insert_list)
+    # , %d, %d, %d, %d, %d, %s, %s, %s, %d, %d, %s, %b, %b, %s, %s
+    # , msize, startdate, enddate, moveindate, number_of_applicants, landlord, housetype, contracttype, latitude, longtitude, imagelink, balcony, elevator, region, district

@@ -1,4 +1,5 @@
 import pymysql
+import config
 
 conn = None
 
@@ -13,7 +14,6 @@ def get_connection():
         port=config.DB_PORT,
         user=config.DB_USER,
         password=config.DB_PASS,
-        charset=config.DB_CHARSET,
     )
     return conn
 
