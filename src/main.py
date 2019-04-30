@@ -1,8 +1,6 @@
 import sys
-import parsing
-from telegram.ext import Updater, CommandHandler
-import logging
-
+from src import parsing
+from src import bot
 
 def main():
     for arg in sys.argv:

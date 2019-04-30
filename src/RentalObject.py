@@ -91,41 +91,34 @@ class RentalObject:
         )
         return data
 
+    @classmethod
+    def from_db(self, row):
+        self.id = row[0],
+        self.link = row[1],
+        self.address = row[2],
+        self.rooms = row[3],
+        self.rent = row[5],
+        self.msize = row[6],
+        self.startdate = row[7],
+        self.enddate = row[8],
+        self.moveindate = row[9],
+        self.number_of_applicants = row[10],
+        self.landlord = row[11],
+        self.housetype = row[12],
+        self.contracttype = row[13],
+        self.latitude = row[14],
+        self.longitude = row[15],
+        self.imagelink = row[16],
+        self.balcony = row[17],
+        self.elevator = row[18],
+        self.region = row[19],
+        self.district = row[20]
+        return self
 
-'''
-
-
-itemBank = []
-for row in rows:
-    itemBank.append((
-        tempRow2['Item_Name'],
-        tempRow1['Item_Price'],
-        tempRow3['Item_In_Stock'],
-        tempRow4['Item_Max'],
-        getTimeExtra
-        )) #append data
-'''
-
-'''
-'''
-
-'''
-        def __str__(self):
-            return """
-            product_id      = {product_id}
-            product_name    = {product_name}
-            id_value        = {id_value}
-            category_id     = {category_id}
-            brand_id        = {brand_id}
-            match_text      = {match_text}
-            matches         = {matches}
-        """.format(
-                product_id=self.product_id,
-                product_name=self.product_name,
-                id_value=self.id_value,
-                category_id=self.category_id,
-                brand_id=self.brand_id,
-                match_text=self.match_text,
-                matches=self.matches,
-            )
-'''
+    def __str__(self):
+        return """
+        link = {link}
+        address = {address}
+        rooms = {rooms}
+        imagelink = {imagelink}
+        """.format(link=self.link, address=self.address, rooms=self.rooms, imagelink=self.imagelink)

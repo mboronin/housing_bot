@@ -10,3 +10,4 @@ DB_USER='bot'
 DB_PASS="1"
 BOSTAD_LINK = "https://bostad.uppsala.se"
 TIME_CONST = 62135604000
+BOT_TOKEN = "899854285:AAE2BNcc9i0N_usGmlT23cxSIDxe54o6KJs"
