@@ -1,5 +1,5 @@
-USERNAME = "boroninm@gmail.com"
-PASSWORD = "23MBoronin#"
+USERNAME = "email"
+PASSWORD = "pass"
 BU_LOGIN_URL = "https://bostad.uppsala.se/logga-in-mina-sidor/"
 BU_URL = 'https://bostad.uppsala.se/lediga-bostader/'
 DB_TABLE='rentals'
@@ -11,7 +11,7 @@ DB_USER='bot'
 DB_PASS="1"
 BOSTAD_LINK = "https://bostad.uppsala.se"
 TIME_CONST = 62135604000
-BOT_TOKEN = "899854285:AAE2BNcc9i0N_usGmlT23cxSIDxe54o6KJs"
+BOT_TOKEN = '<TOKEN>'
 MIN_RENT = 0
 MAX_RENT = 0
 ROOMS = 0

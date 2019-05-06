@@ -1,0 +1,17 @@
+\contentsline {section}{\numberline {1}Design}{2}% 
+\contentsline {section}{\numberline {2}Development}{2}% 
+\contentsline {subsection}{\numberline {2.1}Time issue}{2}% 
+\contentsline {subsection}{\numberline {2.2}Data Issue}{2}% 
+\contentsline {subsection}{\numberline {2.3}API Issues}{3}% 
+\contentsline {section}{\numberline {3}Testing}{3}% 
+\contentsline {subsection}{\numberline {3.1}Testing in a multiple environment}{3}% 
+\contentsline {subsection}{\numberline {3.2}Travis CI}{3}% 
+\contentsline {section}{\numberline {4}Logging}{4}% 
+\contentsline {section}{\numberline {5}What I have learned}{4}% 
+\contentsline {section}{\numberline {6}Future Development}{4}% 
+\contentsline {subsection}{\numberline {6.1}Docker}{4}% 
+\contentsline {subsection}{\numberline {6.2}Data optimization}{4}% 
+\contentsline {subsection}{\numberline {6.3}Other sources}{4}% 
+\contentsline {subsection}{\numberline {6.4}Machine learning}{5}% 
+\contentsline {subsection}{\numberline {6.5}Location}{5}% 
+\contentsline {subsection}{\numberline {6.6}Users}{5}% 

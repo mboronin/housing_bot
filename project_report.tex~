@@ -1,0 +1,54 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{url}
+\title{Report. Contemporary Software Development project. Developing a housing parser}
+\author{Mikhail Boronin}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\begin{abstract}
+This report is devoted to housing parsing tool. It describes first iteration of the tool, which is able to parse housing portals in Uppsala and present them via Telegram bot.
+Tool is developed in Python 3. MySQL 8 database is used for data storage. 
+Code is covered with unit and integration tests. Code coverage is measured with coverage tool for Python.
+Git is used as version control system. Link to the github repository is \url{https://github.com/mboronin/housing_bot}.
+
+I have selected this project, since I do not have a lot of experience in parsing web parsing and bot creating, therefore I considered it as a good idea to get a hands-on experience in development of such tools.
+\end{abstract}
+
+\section{Design}
+To develop a design for this software project, I have decided to inspect the code of the most famous portal: \url{bostad.uppsala.se}. I have noticed, that code contains a lot of <span> tags on the page with available housing. Those tags contain all object information, so there is no need to open and parse a page related to one specific apartment.
+
+
+\section{Development}
+I have tried working with lxml, which is a quite popular library for Python web-parsing.
+However, after reading some articles, I have realised, that BeatifulSoup is a better and modern approach. It is a framework, which includes lxml inside of it, however it also contains additional features, which made it easier to implement the bot. It also makes the solution more scalable.
+So, I began with the link \url{https://gist.github.com/yosemitebandit/1805918}, where basic Beautiful Soup template is introduced
+
+Time issue
+
+There was an issue with ids, since the ids provided are higher than int size
+I have realized that adress cannot be used as a unique key in a database
+
+\section{Testing}
+Testing and code coverage
+
+\section{Travis CI}
+
+\section{Logging}
+
+\section{Future Development}
+Docker
+Data optimization
+Other sources
+Machine learning
+KML
+Ids as int
+Object closer to the point
+\end{document}
+
+
