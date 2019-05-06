@@ -1,120 +1,100 @@
-import telegram
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, ParseMode
 import logging
-from src.dao import base, read_dao
+
+import telegram
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
+
 from src import config
-from tabulate import tabulate
+from src.dao import write_dao, read_dao
 
 bot = telegram.Bot(token=config.BOT_TOKEN)
 updater = Updater(token=config.BOT_TOKEN)
-connection = base.get_connection()
+
+LOGGED_IN = True
+current = 0
+apts = read_dao.get_all_objects()
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 
-# Function to start the bot,initiated on /start command
-def start(bot, update):
-    message = "*Hello and welcome to Uppsala Housing bot! We will help you find your new home !!!*"
-    keyboard = [['Login'], ['Get all housing'], ['Set up filters'], ['Show one by one'], ['Help']]
-    reply_markup = ReplyKeyboardMarkup(keyboard,
-                                       one_time_keyboard=False,
-                                       resize_keyboard=True)
-    update.message.reply_text(message, reply_markup=reply_markup,parse_mode=ParseMode.MARKDOWN)
-    return MENU
-
-def login(bot, update):
-    bot.send_chat_action(chat_id=update.effective_user.id, action=telegram.ChatAction.TYPING)
-    bot.send_message(chat_id=update.message.chat_id, text='Enter your details in the following format : '
-                                                          'Name, Address, Phone number')
-
-
-def database(user_id, customer_name, address, phone_number):
-    print(user_id, customer_name, address, phone_number)
-    connection.execute(
-        '''CREATE TABLE IF NOT EXISTS userdetails(user_id int,customer_name text,address text,phone_number int )''')
-    connection.execute("INSERT INTO userdetails VALUES (?,?,?,?)", (user_id, customer_name, address, phone_number))
-    connection.commit()
-
-
-# Function to save user details in the database
-def saveuserDetails(bot, update):
-    user_id = update.message.from_user.id
-    customer_name, address, phone_number = update.message.text.split(',')
-    database(user_id, customer_name, address, phone_number)
-
-
-# Function to ask user about type of pizza he wants to order
-def selection(bot, update):
-    reply_markup = telegram.ReplyKeyboardRemove()
-
-    print("message sent by user", update.message.text)
-    if update.message.text == 'Get all available housing':
-        result = read_dao.get_object(100026009613)
-        bot.send_message(chat_id=update.message.chat_id, text=result)
-    elif update.message.text == 'Non Veg':
-        nonvegpizzaoptions(bot, update)
-
-
-def show_all(bot, update, result):
-    for row in result:
-        bot.send_message(chat_id=update.message.chat_id, text=row[1])
-
-
-def vegpizzaoptions(bot, update):
-    print("inside vegpizaa method")
-    # button_labels = connection.execute("SELECT name from pizza_details where type=='VEG'")
-    for row in connection.execute("SELECT name from pizza_details where type=='VEG'"):
-        print(row)
-    # print("Button labesl ",button_labels)
-    # button_list=[InlineKeyboardButton(button_labels,callback_data=1)]
-    # reply_markup=InlineKeyboardMarkup(build_menu(button_list,n_cols=len(button_labels)))
-    # update.message.reply_text("Please choose from the following : ",reply_markup=reply_markup)
-    # bot.send_message(chat_id=update.message.chat_id, text='Choose from the following',reply_markup=reply_markup)
-
-
-def nonvegpizzaoptions(bot, update):
-    for row in connection.execute("SELECT name from pizza_details where type=='NonVeg'"):
-        button_labels = row
-    print("Button Labels", button_labels)
-    button_list = [
-        InlineKeyboardButton('Cheese Chicken ', callback_data=1),
-        InlineKeyboardButton('Mushroom Chicken ', callback_data=2)]
-    reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=2))
-    # update.message.reply_text("Please choose from the following : ",reply_markup=reply_markup)
-    bot.send_message(chat_id=update.message.chat_id, text='Choose from the following', reply_markup=reply_markup)
-
-
-# Function to check the userdetails initiated by user on /checkdetails command
-def checkDetails(bot, update):
-    value = update.message.from_user.id
-    print("VALUE : ", value)
-    for row in connection.execute("SELECT *from userdetails WHERE user_id=?", (value,)):
-        print(row)
-        user_id, customer_name, address, phone_number = row
-    labels = ["Customer Name : ", "Address : ", "Phone Number : "]
-    data = [customer_name, address, phone_number]
-    table = zip(labels, data)
-    list = tabulate(table, tablefmt="fancy_grid")
-    bot.send_message(chat_id=update.message.chat_id, text=list)
-
-
-# FUNCTION FOR ORDERING PIZZA
-def show_menu(bot, update):
-    button_labels = [['Login'], ['Get all available housing'], ['Set up filters'], ['Get houses one-by-one'], ['Help']]
-    reply_keyboard = telegram.ReplyKeyboardMarkup(button_labels)
-    bot.send_chat_action(chat_id=update.effective_user.id, action=telegram.ChatAction.TYPING)
-    bot.send_message(chat_id=update.message.chat_id, text='Select your action', reply_markup=reply_keyboard)
-
-
-def button(bot, update):
+def main_menu(bot, update):
     query = update.callback_query
-    bot.send_chat_action(chat_id=update.effective_user.id, action=telegram.ChatAction.TYPING)
-    bot.edit_message_text(text="Your order is received and will be delivered within 30 mins",
-                          chat_id=query.message.chat_id, message_id=query.message.message_id)
+    bot.edit_message_text(chat_id=query.message.chat_id,
+                          message_id=query.message.message_id,
+                          text=main_menu_message(),
+                          reply_markup=main_menu_keyboard())
 
 
-def build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
+def start(bot, update):
+    bot.send_message(chat_id=update.message.chat_id, text=main_menu_message())
+    update.message.reply_text('Choose the option:', reply_markup=main_menu_keyboard())
+
+
+# Function to ask user its details to register,initiated on /register command
+def login(bot, update):
+    query = update.callback_query
+    details = read_dao.get_user(query.message.from_user.id)
+    if details is None:
+        # bot.send_chat_action(chat_id=query.effective_user.id, action=telegram.ChatAction.TYPING)
+        bot.send_message(chat_id=query.message.chat_id, text='Enter your details in the following format : '
+                                                             'username, password, name')
+    else:
+        bot.send_message(chat_id=update.message.chat_id, text='We already have your credentials, let\'s move on!')
+        logging.debug("Login is " + config.USERNAME)
+        logging.debug("Password is " + config.PASSWORD)
+        config.USERNAME = details[0]
+        config.PASSWORD = details[1]
+
+
+def saveuserDetails(bot, update):
+    userid = update.message.from_user.id
+    username, password, name = update.message.text.split(',')
+    write_dao.save_user([username, password, name, userid])
+
+
+def one_by_one(bot, update):
+    query = update.callback_query
+    next_apt(bot, update)
+
+
+def create_rental_table(apts):
+    text = """| Address | Rent | Size | Number of rooms | Link |\n| --- | --- | --- | --- | --- |\n"""
+    for apt in apts:
+        text = text + "| " + str(apt.address[0]) + " | " + str(apt.rent[0]) + " sek" + " | " + str(
+            apt.msize[0]) + " | " + str(apt.rooms[0]) + " | " + str(apt.link[0]) + " |\n"
+    print(text)
+    return text + ""
+
+
+def show_all(bot, update):
+    query = update.callback_query
+    apts = read_dao.get_all_objects()
+    bot.edit_message_text(chat_id=query.message.chat_id,
+                          message_id=query.message.message_id,
+                          text=create_rental_table(apts),
+                          reply_markup=main_menu_keyboard(), parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+def apply_filters(bot, update):
+    query = update.callback_query
+    bot.edit_message_text(chat_id=query.message.chat_id,
+                          message_id=query.message.message_id,
+                          text=filters_menu_message(),
+                          reply_markup=filters_menu_keyboard())
+
+
+def filters_menu_message():
+    return "Select filters you want to apply"
+
+
+def main_menu_message():
+    return "Hey! This is Uppsala Housing bot.\n\n We will help you find your new home"
+
+
+def build_menu(buttons,
+               n_cols,
+               header_buttons=None,
+               footer_buttons=None):
     menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
     if header_buttons:
         menu.insert(0, header_buttons)
@@ -123,20 +103,81 @@ def build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
     return menu
 
 
-def offers():
-    cursor = connection.cursor()
-    return cursor.execute('SELECT * from housing.rentals;')
+def next_apt(bot, update):
+    query = update.callback_query
+    global apts, current
+    print(current)
+    apt = apts[current]
+    current -= current
+    print(current)
+    bot.send_photo(chat_id=query.message.chat_id, photo=str(apt.imagelink[0]))
+    message = "Adress is " + str(apt.address[0]) + "\n" + "Number of rooms is " + str(
+        apt.rooms[0]) + "\n" + "Size is is " + str(apt.msize[0]) + "\n" + "Rent is " + str(
+        apt.rent[0]) + "\n" + "View details here " + str(apt.link[0])
+    bot.send_message(chat_id=query.message.chat_id,
+                     message_id=query.message.message_id,
+                     text=message,
+                     reply_markup=one_by_one_keyboard())
+
+
+def previous_apt(bot, update):
+    query = update.callback_query
+    global apts, current
+    print(current)
+    apt = apts[current]
+    current += current
+    print(current)
+    bot.send_photo(chat_id=query.message.chat_id, photo=str(apt.imagelink[0]))
+    message = "Adress is " + str(apt.address[0]) + "\n" + "Number of rooms is " + str(
+        apt.rooms[0]) + "\n" + "Size is is " + str(apt.msize[0]) + "\n" + "Rent is " + str(
+        apt.rent[0]) + "\n" + "View details here " + str(apt.link[0])
+    bot.send_message(chat_id=query.message.chat_id,
+                     message_id=query.message.message_id,
+                     text=message,
+                     reply_markup=one_by_one_keyboard())
+
+
+def rent_filter(bot, update):
+    bot.send_message("Type in min and max rent price separated by comma")
+    config.MIN_RENT, config.MAX_RENT = update.message.text.split(',')
+
+
+def room_filter(bot, update):
+    bot.send_message("Type in number of rooms")
+    config.ROOMS = update.message.text
+
+
+def main_menu_keyboard():
+    keyboard = [[InlineKeyboardButton('Set login details', callback_data='login')],
+                [InlineKeyboardButton('Apply filters', callback_data='choose filters')],
+                [InlineKeyboardButton('Show one by one', callback_data='one_by_one')],
+                [InlineKeyboardButton('Show all', callback_data='show_all')]]
+    return InlineKeyboardMarkup(keyboard)
+
+
+def filters_menu_keyboard():
+    keyboard = [[InlineKeyboardButton('Rent', callback_data='rent_filter')],
+                [InlineKeyboardButton('Number of Rooms', callback_data='room_filter')]]
+    return InlineKeyboardMarkup(keyboard)
+
+
+def one_by_one_keyboard():
+    keyboard = [[InlineKeyboardButton('Previous', callback_data='previous_apt')],
+                [InlineKeyboardButton('Next', callback_data='next_apt')]]
+    return InlineKeyboardMarkup(keyboard)
 
 
 def main():
     updater.dispatcher.add_handler(CommandHandler('start', start))
-
-    updater.dispatcher.add_handler(CommandHandler('checkdetails', checkDetails))
-    updater.dispatcher.add_handler(CommandHandler('offers', offers))
-
+    updater.dispatcher.add_handler(CallbackQueryHandler(login, pattern='login'))
+    updater.dispatcher.add_handler(CallbackQueryHandler(show_all, pattern='show_all'))
+    updater.dispatcher.add_handler(CallbackQueryHandler(one_by_one, pattern='one_by_one'))
+    updater.dispatcher.add_handler(CallbackQueryHandler(apply_filters, pattern='apply_filters'))
+    updater.dispatcher.add_handler(CallbackQueryHandler(rent_filter, pattern='rent_filter'))
+    updater.dispatcher.add_handler(CallbackQueryHandler(room_filter, pattern='room_filter'))
+    updater.dispatcher.add_handler(CallbackQueryHandler(next_apt, pattern='next_apt'))
+    updater.dispatcher.add_handler(CallbackQueryHandler(previous_apt, pattern='previous_apt'))
     updater.dispatcher.add_handler(MessageHandler(Filters.text, saveuserDetails), group=0)
-    updater.dispatcher.add_handler(MessageHandler(Filters.text, selection), group=1)
-    updater.dispatcher.add_handler((CallbackQueryHandler(button)))
     updater.start_polling()
 
 

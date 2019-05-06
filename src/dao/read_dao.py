@@ -3,21 +3,17 @@ from src.dao import base
 from src import Appartment
 
 
-def save_object(insert_list):
-    query = """
-        INSERT IGNORE INTO `{database}`.`{table}`
-        (id, link, address, rooms, rent, msize, startdate, enddate, moveindate, number_of_applicants, landlord, housetype, contracttype, latitude, longtitude, imagelink, balcony, elevator, region, district)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-    """.format(database=config.DB_SCHEMA, table=config.DB_TABLE)
-    conn = base.get_connection()
-    cursor = conn.cursor()
-    cursor.execute(query, insert_list)
+def get_user(userid):
+    connection = base.get_connection()
+    mycursor = connection.cursor()
+    mycursor.execute("SELECT login,password FROM housing.users where userid={userid};".format(userid=userid))
+    return mycursor.fetchone()
 
 
 def get_all_objects():
     connection = base.get_connection()
     mycursor = connection.cursor()
-    mycursor.execute("SELECT * FROM housing.rentals where enddate > now();")
+    mycursor.execute("SELECT * FROM housing.rentals where enddate > now() limit 5;")
     results = mycursor.fetchall()
     apts = []
     for result in results:
@@ -26,15 +22,15 @@ def get_all_objects():
 
 
 def get_with_filters(rooms, min_rent, max_rent, district):
-    if rooms is None and district is None and min_rent is None and max_rent is None:
+    if rooms == 0 and district == "" and min_rent == 0 and max_rent == 0:
         query = "SELECT * FROM housing.rentals where enddate > now();"
-    if rooms is None and district is None:
-        query= "SELECT * FROM housing.rentals where enddate > now() and rent > {min_rent} and rent < {max_rent};".format(
+    if rooms == 0 and district == "":
+        query = "SELECT * FROM housing.rentals where enddate > now() and rent > {min_rent} and rent < {max_rent};".format(
             max_rent=max_rent, min_rent=min_rent)
-    elif rooms is None:
+    elif rooms == 0:
         query = "SELECT * FROM housing.rentals where enddate > now() and rent > {min_rent} and rent < {max_rent} and district={district};".format(
             max_rent=max_rent, min_rent=min_rent, district=district)
-    elif district is None:
+    elif district == "":
         query = "SELECT * FROM housing.rentals where enddate > now() and rent > {min_rent} and rent < {max_rent} and rooms={rooms};".format(
             max_rent=max_rent, min_rent=min_rent, rooms=rooms)
     connection = base.get_connection()
@@ -55,4 +51,4 @@ def get_object(id):
     result = list(cursor.fetchone())
     print(result)
     apt = Appartment.Appartment(result)
-    return str(apt)
+    return apt

@@ -23,6 +23,5 @@ class Appartment:
         self.district = row[19]
 
     def __str__(self):
-        return """
-                Appartment is located at {address}. There are {rooms} rooms. Rent is {rent} sek/month.\n{imagelink}\n View the details here {link}
-                """.format(link=self.link[0], address=self.address[0], rent=self.rent[0], rooms=self.rooms[0], imagelink=self.imagelink[0])
+        return """{address}\n{rooms} rooms\nRent is {rent} sek/month.\nSize is {msize}\nView the details here {link}""".format(link=self.link[0], address=self.address[0], rent=self.rent[0], rooms=self.rooms[0],
+                           msize=self.msize[0])
